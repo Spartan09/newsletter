@@ -19,7 +19,7 @@ need_stdout = false
 
 # Run clippy on the default target
 [jobs.clippy]
-command = ["cargo", "clippy"]
+command = ["cargo", "clippy", "--", "-D", "warnings"]
 need_stdout = false
 
 # Run clippy on all targets
