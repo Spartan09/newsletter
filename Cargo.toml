@@ -2,7 +2,7 @@
 name = "newsletter"
 version = "0.1.0"
 authors = ["Ayushman Rathore <ayushsg0412@gmail.com>"]
-edition = "2021"
+edition = "2024"
 
 [lib]
 path = "src/lib.rs"
@@ -25,6 +25,7 @@ tracing = { version = "0.1", features = ["log"] }
 tracing-subscriber = { version = "0.3", features = ["registry", "env-filter"] }
 tracing-bunyan-formatter = "0.3"
 tracing-log = "0.2"
+tracing-actix-web = "0.7"
 secrecy = { version = "0.8", features = ["serde"] }
 
 

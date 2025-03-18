@@ -48,6 +48,7 @@ command = ["cargo", "test"]
 need_stdout = true
 on_success = "job:run-long"
 
+
 [jobs.nextest]
 command = [
     "cargo",
