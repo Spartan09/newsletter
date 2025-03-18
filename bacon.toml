@@ -102,6 +102,7 @@ allow_warnings = true
 background = false
 on_change_strategy = "kill_then_restart"
 
+
 # This parameterized job runs the example of your choice, as soon
 # as the code compiles.
 # Call it as
