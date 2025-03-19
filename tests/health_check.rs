@@ -1,7 +1,7 @@
 use std::net::TcpListener;
 
 use newsletter::{
-    configuration::{get_configuration, DatabaseSettings},
+    configuration::{DatabaseSettings, get_configuration},
     telemetry::{get_subscriber, init_subscriber},
 };
 use secrecy::{ExposeSecret, Secret};
