@@ -40,3 +40,6 @@ features = [
     "chrono",
     "migrate",
 ]
+
+# [profile.release]
+# strip = "symbols"
