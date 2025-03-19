@@ -46,7 +46,7 @@ need_stdout = false
 [jobs.test]
 command = ["cargo", "test"]
 need_stdout = true
-on_success = "job:run-long"
+on_success = "job:run-long-jq"
 
 
 [jobs.nextest]
@@ -93,15 +93,19 @@ background = true
 # If you often use this job, it makes sense to override the 'r' key by adding
 # a binding `r = job:run-long` at the end of this file .
 [jobs.run-long]
-command = [
-    "cargo",
-    "run",
-    # put launch parameters for your program behind a `--` separator
-]
+command = ["cargo", "run"]
 need_stdout = true
 allow_warnings = true
 background = false
 on_change_strategy = "kill_then_restart"
+
+[jobs.run-long-jq]
+command = ["sh", "-c", "cargo run | jq -C --unbuffered"]
+need_stdout = true
+allow_warnings = true
+background = false
+on_change_strategy = "kill_then_restart"
+kill = ["pkill", "-TERM", "-P"]
 
 
 # This parameterized job runs the example of your choice, as soon
@@ -119,4 +123,5 @@ allow_warnings = true
 # should go in your personal global prefs.toml file instead.
 [keybindings]
 # alt-m = "job:my-job"
-c = "job:clippy-all" # comment this to have 'c' run clippy on only the default target
+c = "job:clippy-all"  # comment this to have 'c' run clippy on only the default target
+r = "job:run-long-jq"
