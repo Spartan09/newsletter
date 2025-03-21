@@ -48,6 +48,10 @@ command = ["cargo", "test"]
 need_stdout = true
 on_success = "job:run-long-jq"
 
+[jobs.test-all]
+command = ["cargo", "test", "--all-targets"]
+need_stdout = true
+on_success = "job:run-long-jq"
 
 [jobs.nextest]
 command = [
@@ -123,5 +127,8 @@ allow_warnings = true
 # should go in your personal global prefs.toml file instead.
 [keybindings]
 # alt-m = "job:my-job"
-c = "job:clippy-all"  # comment this to have 'c' run clippy on only the default target
+c = "job:clippy"
+Shift-c = "job:clippy-all"
+t = "job:test"
+Shift-t = "job:test-all"
 r = "job:run-long-jq"
