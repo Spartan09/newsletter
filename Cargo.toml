@@ -12,7 +12,6 @@ path = "src/main.rs"
 name = "newsletter"
 
 [dev-dependencies]
-reqwest = "0.12"
 claims = "0.7"
 fake = "2.9"
 quickcheck = "1.0.3"
@@ -23,6 +22,7 @@ rand = "0.8"
 actix-web = "4"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 serde = { version = "1", features = ["derive"] }
+reqwest = "0.12"
 serde-aux = "4"
 config = "0.14"
 uuid = { version = "1", features = ["v4"] }
