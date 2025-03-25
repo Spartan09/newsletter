@@ -17,12 +17,14 @@ fake = "2.9"
 quickcheck = "1.0.3"
 quickcheck_macros = "1"
 rand = "0.8"
+tokio = { version = "1", features = ["rt", "macros"] }
+wiremock = "0.6"
 
 [dependencies]
 actix-web = "4"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 serde = { version = "1", features = ["derive"] }
-reqwest = "0.12"
+reqwest = { version = "0.12", features = ["json"] }
 serde-aux = "4"
 config = "0.14"
 uuid = { version = "1", features = ["v4"] }
