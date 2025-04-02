@@ -1,12 +1,13 @@
 use reqwest::Client;
-use secrecy::Secret;
+use secrecy::{ExposeSecret, Secret};
 
 use crate::domain::SubscriberEmail;
 
+#[derive(Clone)]
 pub struct EmailClient {
     sender: SubscriberEmail,
     http_client: Client,
-    base_url: reqwest::Url,
+    base_url: String,
     authorization_token: Secret<String>,
 }
 
@@ -18,7 +19,7 @@ impl EmailClient {
     ) -> Self {
         Self {
             http_client: Client::new(),
-            base_url: reqwest::Url::parse(base_url.as_str()).unwrap(),
+            base_url,
             sender,
             authorization_token,
         }
@@ -30,8 +31,8 @@ impl EmailClient {
         subject: &str,
         html_content: &str,
         text_content: &str,
-    ) -> Result<(), String> {
-        let url = self.base_url.join("email").unwrap();
+    ) -> Result<(), reqwest::Error> {
+        let url = format!("{}/email", self.base_url);
         let request_body = SendEmailRequest {
             from: self.sender.as_ref().to_owned(),
             to: recipient.as_ref().to_owned(),
@@ -39,12 +40,22 @@ impl EmailClient {
             html_body: html_content.to_owned(),
             text_body: text_content.to_owned(),
         };
-        let builder = self.http_client.post(url).json(&request_body);
+        let _builder = self
+            .http_client
+            .post(url)
+            .header(
+                "X-Postmark-Server-Token",
+                self.authorization_token.expose_secret(),
+            )
+            .json(&request_body)
+            .send()
+            .await?;
         Ok(())
     }
 }
 
 #[derive(serde::Serialize)]
+#[serde(rename_all = "PascalCase")]
 struct SendEmailRequest {
     from: String,
     to: String,
@@ -56,23 +67,48 @@ struct SendEmailRequest {
 #[cfg(test)]
 mod tests {
     use fake::{
-        Fake,
+        Fake, Faker,
         faker::{
             internet::en::SafeEmail,
             lorem::en::{Paragraph, Sentence},
         },
     };
-    use wiremock::{Mock, MockServer, ResponseTemplate, matchers::any};
+    use secrecy::Secret;
+    use wiremock::{
+        Mock, MockServer, ResponseTemplate,
+        matchers::{header, header_exists, method, path},
+    };
 
     use crate::{domain::SubscriberEmail, email_client::EmailClient};
 
+    struct SendEmailBodyMatcher;
+
+    impl wiremock::Match for SendEmailBodyMatcher {
+        fn matches(&self, request: &wiremock::Request) -> bool {
+            let result: Result<serde_json::Value, _> = serde_json::from_slice(&request.body);
+            if let Ok(body) = result {
+                dbg!(&body);
+                body.get("From").is_some()
+                    && body.get("To").is_some()
+                    && body.get("HtmlBody").is_some()
+                    && body.get("TextBody").is_some()
+            } else {
+                false
+            }
+        }
+    }
+
     #[tokio::test]
-    async fn send_email_fires_a_reqeust_to_base_url() {
+    async fn send_email_sends_the_expected_request() {
         let mock_server = MockServer::start().await;
         let sender = SubscriberEmail::parse(SafeEmail().fake()).unwrap();
-        let email_client = EmailClient::new(mock_server.uri(), sender);
+        let email_client = EmailClient::new(mock_server.uri(), sender, Secret::new(Faker.fake()));
 
-        Mock::given(any())
+        Mock::given(header_exists("X-Postmark-Server-Token"))
+            .and(header("Content-Type", "application/json"))
+            .and(path("/email"))
+            .and(method("POST"))
+            .and(SendEmailBodyMatcher)
             .respond_with(ResponseTemplate::new(200))
             .expect(1)
             .mount(&mock_server)
