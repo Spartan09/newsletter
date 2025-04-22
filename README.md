@@ -1,3 +1,3 @@
-# Modern Newsletter API
+# Crab Courier
 
-Follows Zero to Production, a high-performance, production-ready newsletter subscription service built with Rust.
+A a high-performance, production-ready newsletter subscription service built with Rust.
